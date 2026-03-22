@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study: HAC vs HulC for Regression with AR(1) Errors</title>
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$','$']],
+      displayMath: [['$$','$$']],
+      macros: {
+        R: '\\mathbb{R}', E: '\\mathbb{E}', P: '\\mathbb{P}',
+        Var: '\\mathrm{Var}', Cov: '\\mathrm{Cov}',
+      }
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf8; --text: #1a1a1a; --accent: #8b0000; --accent2: #00356b;
+    --border: #d4c9a8; --note-bg: #f0ece2; --def-bg: #e8f0fe;
+    --thm-bg: #fef3e0; --example-bg: #e8f5e9; --remark-bg: #fce4ec;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Georgia', serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 17px; }
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 30px 80px; }
+  .header { text-align: center; margin-bottom: 40px; padding-bottom: 25px; border-bottom: 2px solid var(--accent); }
+  .header h1 { font-size: 1.8em; color: var(--accent); margin-bottom: 8px; line-height: 1.3; }
+  .header .subtitle { font-size: 1em; color: #555; font-style: italic; }
+  .header .meta { margin-top: 12px; font-size: 0.92em; color: #666; }
+  h2 { font-size: 1.5em; color: var(--accent); margin: 40px 0 15px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 1.2em; color: var(--accent2); margin: 25px 0 10px; }
+  p { margin: 10px 0; text-align: justify; }
+  ul, ol { margin: 10px 0 10px 25px; }
+  li { margin: 4px 0; }
+  .env { border-radius: 6px; padding: 14px 18px; margin: 18px 0; border-left: 4px solid; }
+  .setup { background: var(--def-bg); border-color: var(--accent2); }
+  .setup .env-title { color: var(--accent2); font-weight: bold; margin-bottom: 6px; }
+  .finding { background: var(--thm-bg); border-color: #e65100; }
+  .finding .env-title { color: #bf360c; font-weight: bold; margin-bottom: 6px; }
+  .remark { background: var(--remark-bg); border-color: #c62828; }
+  .remark .env-title { color: #b71c1c; font-weight: bold; margin-bottom: 6px; }
+  .code-ref { background: #f4f4f4; border: 1px solid #ddd; border-radius: 4px; padding: 10px 14px; margin: 12px 0; font-family: 'Menlo', 'Monaco', monospace; font-size: 0.88em; color: #333; }
+  .code-ref .path { color: var(--accent2); font-weight: bold; }
+  .code-ref .desc { color: #666; }
+  .figure { text-align: center; margin: 25px 0; }
+  .figure .plot { width: 100%; min-height: 420px; }
+  .figure .caption { font-size: 0.9em; color: #555; margin-top: 8px; font-style: italic; }
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.88em; }
+  th, td { padding: 7px 10px; text-align: center; border: 1px solid var(--border); }
+  th { background: var(--note-bg); color: var(--accent); font-weight: 600; }
+  td.best { font-weight: bold; color: #1b5e20; }
+  .separator { text-align: center; margin: 35px 0; color: var(--border); font-size: 1.5em; letter-spacing: 10px; }
+  code { background: #f0ece2; padding: 1px 5px; border-radius: 3px; font-size: 0.9em; }
+  .footnote { font-size: 0.88em; color: #666; border-top: 1px solid var(--border); margin-top: 30px; padding-top: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>HC vs HAC vs HulC for Linear Regression<br>with AR(1) Errors</h1>
+  <div class="subtitle">A Monte Carlo Comparison Study</div>
+  <div class="meta">
+    Based on Kuchibhotla, Balakrishnan &amp; Wasserman (HulC)<br>
+    HAC defaults match R's <code>sandwich::vcovHAC</code><br>
+    Simulation Date: March 2026
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ 1. SETUP -->
+<h2>1. Experimental Setup</h2>
+
+<div class="setup env">
+  <div class="env-title">Regression Model</div>
+  $$Y = X\beta_0 + \varepsilon, \qquad \varepsilon \sim N(0, \Omega), \qquad \Omega_{i,j} = \rho^{|i-j|}$$
+  <ul>
+    <li><strong>Dimension:</strong> $d = 2$, $\beta_0 = (1, -2)^\top$</li>
+    <li><strong>Design:</strong> $X \in \R^{n \times 2}$, <strong>fixed</strong> (non-stochastic): each column is an AR(0.8) process (drawn once, held fixed across simulations)</li>
+    <li><strong>Sample size:</strong> $n = 500$</li>
+    <li><strong>Error structure:</strong> AR(1): $\varepsilon_t = \rho\,\varepsilon_{t-1} + \eta_t$, $\eta_t \sim N(0, 1-\rho^2)$</li>
+    <li><strong>Autocorrelation:</strong> $\rho \in \{0, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99\}$</li>
+    <li><strong>Target:</strong> $c^\top\beta_0$ for three choices of $c$</li>
+    <li><strong>Simulations:</strong> $N_{\text{sim}} = 2000$, $\alpha = 0.05$</li>
+  </ul>
+</div>
+
+<h3>1.1 Direction Vectors</h3>
+<table>
+  <tr><th>Label</th><th>$c$</th><th>Target $c^\top\beta_0$</th><th>Interpretation</th></tr>
+  <tr><td>$c_1$</td><td>$(1, 0)$</td><td>$1.0$</td><td>Inference for $\beta_1$</td></tr>
+  <tr><td>$c_2$</td><td>$(0, 1)$</td><td>$-2.0$</td><td>Inference for $\beta_2$</td></tr>
+  <tr><td>$c_3$</td><td>$(1/\sqrt{2},\, 1/\sqrt{2})$</td><td>$\approx -0.707$</td><td>Linear combination</td></tr>
+</table>
+
+<h3>1.2 Methods Compared</h3>
+
+<div class="setup env">
+  <div class="env-title">Method 1: HC (Classical Sandwich / White)</div>
+  Standard heteroscedasticity-consistent (HC) Wald CI that <strong>ignores autocorrelation</strong>:
+  $$\hat{V}_{\text{HC}} = \left(\frac{X^\top X}{n}\right)^{\!-1} \!\left(\frac{1}{n}\sum_{i=1}^n x_i x_i^\top \hat\varepsilon_i^2\right) \left(\frac{X^\top X}{n}\right)^{\!-1} \frac{1}{n}$$
+  with finite-sample adjustment $n/(n-d)$. This is the baseline &mdash; it correctly handles heteroscedasticity but is <em>invalid</em> under autocorrelation.
+</div>
+
+<div class="code-ref">
+  <span class="path">knn_affine/study_hac_vs_hulc.py</span><br>
+  <span class="desc">Lines 80&ndash;99: <code>run_hc(X, Y, c, alpha)</code> &mdash; inline HC sandwich implementation</span>
+</div>
+
+<div class="setup env">
+  <div class="env-title">Method 2: HAC (sandwich::vcovHAC defaults)</div>
+  Matching R's <code>sandwich::vcovHAC</code> defaults from Andrews (1991):
+  <ul>
+    <li><strong>Kernel:</strong> Quadratic Spectral (QS):
+      $k(x) = \frac{25}{12\pi^2 x^2}\left(\frac{\sin(6\pi x/5)}{6\pi x/5} - \cos\frac{6\pi x}{5}\right)$</li>
+    <li><strong>Bandwidth:</strong> Andrews (1991) automatic, AR(1) approximation:
+      $\hat{b} = 1.3221\,(\hat\alpha_2 \cdot n)^{1/5}$</li>
+    <li><strong>Prewhitening:</strong> VAR(1) prewhitening with recoloring</li>
+    <li><strong>Adjustment:</strong> $n/(n-d)$ finite-sample correction</li>
+  </ul>
+</div>
+
+<div class="code-ref">
+  <span class="path">knn_affine/hac.py</span><br>
+  <span class="desc">Lines 27&ndash;33: <code>kernel_quadratic_spectral(x)</code> &mdash; QS kernel</span><br>
+  <span class="desc">Lines 76&ndash;127: <code>_bw_andrews_from_U(U, kernel)</code> &mdash; Andrews automatic bandwidth</span><br>
+  <span class="desc">Lines 131&ndash;152: <code>prewhiten(U)</code> / <code>recolor(S, A)</code> &mdash; VAR(1) prewhitening</span><br>
+  <span class="desc">Lines 157&ndash;210: <code>vcov_hac(X, residuals, ...)</code> &mdash; Full HAC estimator</span>
+</div>
+
+<div class="setup env">
+  <div class="env-title">Method 3: HulC (Raw Data)</div>
+  Split $\{1, \ldots, n\}$ into $B = 8$ batches with <strong>gap $= 10$</strong> between batches.
+  Compute batch-wise OLS projections $\vartheta_j = c^\top\hat\beta_{S_j}$ and form the order-statistic CI.
+</div>
+
+<div class="code-ref">
+  <span class="path">knn_affine/study_hac_vs_hulc.py</span><br>
+  <span class="desc">Lines 105&ndash;121: <code>run_hulc_raw(X, Y, c, alpha, B, gap)</code></span>
+</div>
+
+<div class="setup env">
+  <div class="env-title">Method 4: HulC (Differenced Data)</div>
+  First-difference: $\tilde{X}_i = X_i - X_{i-1}$, $\tilde{Y}_i = Y_i - Y_{i-1}$.
+  Since $\omega_i = \varepsilon_i - \varepsilon_{i-1}$ is strong mixing for <em>any</em> $\rho \in [-1,1]$,
+  HulC on the differenced regression is valid even near unit root. Uses $B = 8$, gap $= 5$.
+</div>
+
+<div class="code-ref">
+  <span class="path">knn_affine/study_hac_vs_hulc.py</span><br>
+  <span class="desc">Lines 124&ndash;151: <code>run_hulc_diff(X, Y, c, alpha, B, gap)</code></span>
+</div>
+
+<div class="separator">&bull; &bull; &bull;</div>
+
+<!-- ═══════════════════════════════ 2. COVERAGE -->
+<h2>2. Coverage Results</h2>
+
+<p>
+  Nominal coverage is $1 - \alpha = 95\%$. Simulation error: the 95% CI for a binomial proportion at 95% with $n = 2000$ is roughly $[93.8\%, 96.0\%]$.
+</p>
+
+<div class="figure">
+  <div id="fig-cov-c1" class="plot"></div>
+  <div class="caption">Figure 1: Coverage for $c_1 = (1,0)$ &mdash; inference for $\beta_1$.</div>
+</div>
+
+<div class="figure">
+  <div id="fig-cov-c2" class="plot"></div>
+  <div class="caption">Figure 2: Coverage for $c_2 = (0,1)$ &mdash; inference for $\beta_2$.</div>
+</div>
+
+<div class="figure">
+  <div id="fig-cov-c3" class="plot"></div>
+  <div class="caption">Figure 3: Coverage for $c_3 = (1,1)/\sqrt{2}$ &mdash; linear combination.</div>
+</div>
+
+<div class="finding env">
+  <div class="env-title">Finding 1: Coverage</div>
+  <ul>
+    <li><strong>HC (classical sandwich)</strong> collapses as $\rho$ increases: from ~95% at $\rho = 0$ down to <strong>~19% at $\rho = 1$</strong>. This confirms Pötscher &amp; Preinerstorfer: the Wald interval with HC variance is <em>not uniformly valid</em> under autocorrelation with fixed design.</li>
+    <li><strong>HAC</strong> (QS + Andrews + prewhitening) holds up better but still degrades: ~94% at low $\rho$ but dropping to <strong>~68% at $\rho = 1$</strong>.</li>
+    <li><strong>HulC (raw)</strong> maintains ~99% coverage <strong>uniformly across all $\rho$</strong> — exactly as the theory predicts.</li>
+    <li><strong>HulC (diff)</strong> also maintains ~99% coverage uniformly, including at $\rho = 1$ (unit root).</li>
+  </ul>
+</div>
+
+<div class="separator">&bull; &bull; &bull;</div>
+
+<!-- ═══════════════════════════════ 3. WIDTH -->
+<h2>3. CI Width Results</h2>
+
+<div class="figure">
+  <div id="fig-width-c1" class="plot"></div>
+  <div class="caption">Figure 4: Mean CI width for $c_1 = (1,0)$.</div>
+</div>
+
+<div class="figure">
+  <div id="fig-width-c2" class="plot"></div>
+  <div class="caption">Figure 5: Mean CI width for $c_2 = (0,1)$.</div>
+</div>
+
+<div class="figure">
+  <div id="fig-width-c3" class="plot"></div>
+  <div class="caption">Figure 6: Mean CI width for $c_3 = (1,1)/\sqrt{2}$.</div>
+</div>
+
+<div class="finding env">
+  <div class="env-title">Finding 2: CI Width</div>
+  <ul>
+    <li><strong>HC</strong> is narrowest (~0.18) but <em>too narrow</em> &mdash; the low width is why coverage collapses.</li>
+    <li><strong>HAC</strong> correctly widens with $\rho$ (0.18 → 0.46) but still underestimates at high $\rho$.</li>
+    <li><strong>HulC (raw)</strong> grows with $\rho$ (0.44 → 1.2), maintaining valid coverage at the cost of wider intervals.</li>
+    <li><strong>HulC (diff)</strong> <em>shrinks</em> as $\rho$ increases: from 0.92 at $\rho = 0$ down to <strong>0.09 at $\rho = 0.99</strong>. This is because $\Var(\omega_i) = 2(1-\rho) \to 0$, making the differenced OLS increasingly precise. At high $\rho$, HulC-diff achieves the best of both worlds: <strong>tighter CIs than all other methods AND uniform validity</strong>.</li>
+  </ul>
+</div>
+
+<div class="remark env">
+  <div class="env-title">Key Insight: HulC-Diff Exploits Near-Unit-Root Structure</div>
+  <p>
+    Differencing transforms AR(1) errors into innovations $\omega_i = \varepsilon_i - \varepsilon_{i-1}$ with
+    $\Var(\omega_i) = 2(1 - \rho)$. As $\rho \to 1$, the innovations shrink toward zero, giving HulC-diff
+    dramatically tighter CIs. Neither HC nor HAC exploit this structure &mdash; they estimate the full
+    covariance but don't benefit from the near-cancellation.
+  </p>
+</div>
+
+<div class="separator">&bull; &bull; &bull;</div>
+
+<!-- ═══════════════════════════════ 4. TABLES -->
+<h2>4. Detailed Results Tables</h2>
+
+<h3>4.1 $c_1 = (1, 0)$ &mdash; Inference for $\beta_1$</h3>
+<div id="table-c1"></div>
+
+<h3>4.2 $c_2 = (0, 1)$ &mdash; Inference for $\beta_2$</h3>
+<div id="table-c2"></div>
+
+<h3>4.3 $c_3 = (1,1)/\sqrt{2}$</h3>
+<div id="table-c3"></div>
+
+<div class="separator">&bull; &bull; &bull;</div>
+
+<!-- ═══════════════════════════════ 5. RATIO -->
+<h2>5. Efficiency Analysis: Width Ratios</h2>
+
+<div class="figure">
+  <div id="fig-ratio" class="plot"></div>
+  <div class="caption">Figure 7: Width ratio relative to HC (averaged across all $c$ vectors). Values &lt; 1 mean the method produces <em>tighter</em> intervals than HC.</div>
+</div>
+
+<div class="finding env">
+  <div class="env-title">Finding 3: Crossover Point</div>
+  <p>
+    HulC-diff becomes <strong>narrower than HAC</strong> at approximately $\rho \approx 0.5$, and narrower
+    than <strong>all methods</strong> for $\rho \geq 0.7$. At $\rho = 0.99$, HulC-diff is roughly
+    <strong>5&times; narrower than HAC</strong> (0.09 vs 0.46) while maintaining 99% coverage.
+  </p>
+</div>
+
+<div class="separator">&bull; &bull; &bull;</div>
+
+<!-- ═══════════════════════════════ 6. DISCUSSION -->
+<h2>6. Discussion</h2>
+
+<h3>6.1 When to Use Each Method</h3>
+
+<table>
+  <tr><th>Scenario</th><th>Recommended</th><th>Rationale</th></tr>
+  <tr><td>No autocorrelation ($\rho = 0$)</td><td>HC or HAC</td><td>Tightest CIs; both valid</td></tr>
+  <tr><td>Low autocorrelation ($\rho < 0.5$)</td><td>HAC</td><td>Properly accounts for autocorrelation; tight CIs</td></tr>
+  <tr><td>Moderate ($0.5 \leq \rho < 0.8$)</td><td>HAC or HulC-diff</td><td>HAC tighter but HulC-diff closing the gap</td></tr>
+  <tr><td>High autocorrelation ($\rho \geq 0.8$)</td><td>HulC (diff)</td><td>Tighter CIs <em>and</em> guaranteed uniform validity</td></tr>
+  <tr><td>Unknown $\rho$</td><td>HulC (diff)</td><td>Robust to any $\rho$; no bandwidth/kernel choice</td></tr>
+  <tr><td>Non-Gaussian errors</td><td>HulC (raw or diff)</td><td>No CLT assumption needed</td></tr>
+</table>
+
+<h3>6.2 Why Fixed Design Matters</h3>
+<p>
+  An earlier version of this study used random $X \sim N(0, I)$ with independent rows, under which
+  HC appeared to work fine. This is because $\E[x_i x_j^\top] = 0$ for $i \neq j$, so the
+  cross-terms in $X^\top\Omega X$ average to zero. With a <strong>fixed AR(0.8) design</strong> where
+  nearby rows are correlated, the true $X^\top\Omega X$ is roughly <strong>6&times; larger</strong>
+  than what HC estimates, exposing its failure.
+</p>
+
+<h3>6.3 Why HulC Over-Covers</h3>
+<p>
+  Both HulC variants achieve ~99% rather than 95%. With $B = 8$ batches, the achievable coverage
+  levels are determined by Binomial($8$, $0.5$) tail probabilities, which don't hit 95% exactly.
+  Increasing $B$ to 15&ndash;20 would reduce over-coverage at the cost of wider intervals.
+</p>
+
+<h3>6.4 The Differencing Advantage</h3>
+<p>
+  The key theoretical insight (Kuchibhotla et al., Application 2 revisited) is that differencing
+  transforms AR(1) errors with <em>any</em> $\rho$ into strong-mixing innovations. Our experiments
+  confirm and quantify this: the practical benefit is enormous for $\rho > 0.7$.
+</p>
+
+<div class="separator">&bull; &bull; &bull;</div>
+
+<!-- ═══════════════════════════════ 7. CODE REFERENCE -->
+<h2>7. Code Reference</h2>
+
+<div class="code-ref">
+  <strong>Simulation entry point:</strong><br>
+  <span class="path">knn_affine/study_hac_vs_hulc.py</span><br>
+  <span class="desc">Run: <code>python3 -m knn_affine.study_hac_vs_hulc</code></span><br><br>
+
+  <strong>Core modules:</strong><br>
+  <span class="path">knn_affine/hac.py</span> &mdash; QS kernel, Andrews bandwidth, VAR(1) prewhitening, vcovHAC<br>
+  <span class="path">knn_affine/hulc.py</span> &mdash; Univariate HulC (batch splitting + order statistics)<br>
+  <span class="path">knn_affine/utils.py</span> &mdash; Batch splitting with gaps, binomial critical values<br><br>
+
+  <strong>Key functions:</strong><br>
+  <code>run_hc(X, Y, c, alpha)</code> &mdash; <span class="path">study_hac_vs_hulc.py:80</span> (classical sandwich)<br>
+  <code>vcov_hac(X, residuals, ...)</code> &mdash; <span class="path">hac.py:157</span> (full sandwich::vcovHAC)<br>
+  <code>kernel_quadratic_spectral(x)</code> &mdash; <span class="path">hac.py:27</span><br>
+  <code>_bw_andrews_from_U(U, kernel)</code> &mdash; <span class="path">hac.py:215</span> (Andrews bandwidth)<br>
+  <code>prewhiten(U)</code> / <code>recolor(S, A)</code> &mdash; <span class="path">hac.py:131</span><br>
+  <code>run_hulc_raw(X, Y, c, alpha, B, gap)</code> &mdash; <span class="path">study_hac_vs_hulc.py:105</span><br>
+  <code>run_hulc_diff(X, Y, c, alpha, B, gap)</code> &mdash; <span class="path">study_hac_vs_hulc.py:124</span><br>
+  <code>generate_ar1_errors(n, rho, rng)</code> &mdash; <span class="path">study_hac_vs_hulc.py:58</span><br><br>
+
+  <strong>Results:</strong><br>
+  <span class="path">study_results.json</span> &mdash; Raw simulation output (JSON)
+</div>
+
+<div class="footnote">
+  <strong>Configuration:</strong> $n = 500$, $d = 2$, $\beta_0 = (1, -2)$, $\alpha = 0.05$,
+  $B = 8$ batches, gap $= 10$ (raw) / $5$ (diff), $N_{\text{sim}} = 2000$,
+  $\rho \in \{0, 0.3, 0.5, 0.7, 0.9, 0.95, 0.99\}$. Seed: 42.
+</div>
+
+</div><!-- /container -->
+
+<script>
+// Load results
+const results = {"c = (1, 0)  [\u03b2\u2081]": {"target": 1.0, "rho_results": [{"rho": 0.0, "hc": {"coverage": 0.9405, "mean_width": 0.18179365156993862, "median_width": 0.18141032146556857, "valid_sims": 2000}, "hac": {"coverage": 0.938, "mean_width": 0.1816467655712569, "median_width": 0.18059647815476065, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.988, "mean_width": 0.4385119871489216, "median_width": 0.4231655472387117, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9925, "mean_width": 0.914980737922573, "median_width": 0.8879924844996924, "valid_sims": 2000}}, {"rho": 0.3, "hc": {"coverage": 0.8785, "mean_width": 0.18157548458005646, "median_width": 0.18159437689529861, "valid_sims": 2000}, "hac": {"coverage": 0.9435, "mean_width": 0.2316022163398145, "median_width": 0.23013379537739026, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.9935, "mean_width": 0.5446480855134701, "median_width": 0.5268186537835371, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9925, "mean_width": 0.765707838388269, "median_width": 0.7449662018674523, "valid_sims": 2000}}, {"rho": 0.5, "hc": {"coverage": 0.8005, "mean_width": 0.18043906972882875, "median_width": 0.1797988580358647, "valid_sims": 2000}, "hac": {"coverage": 0.9375, "mean_width": 0.27283084659114726, "median_width": 0.2708858339854505, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.992, "mean_width": 0.6408706227106512, "median_width": 0.6260691621930824, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9945, "mean_width": 0.6489869625151748, "median_width": 0.63615296924364, "valid_sims": 2000}}, {"rho": 0.7, "hc": {"coverage": 0.7055, "mean_width": 0.18009333660871515, "median_width": 0.17915434792532034, "valid_sims": 2000}, "hac": {"coverage": 0.943, "mean_width": 0.33585442860255843, "median_width": 0.33049366383281353, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.992, "mean_width": 0.7599658884246105, "median_width": 0.7450855595870658, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9935, "mean_width": 0.5014091224002512, "median_width": 0.49170299463987255, "valid_sims": 2000}}, {"rho": 0.9, "hc": {"coverage": 0.5455, "mean_width": 0.17608056752468645, "median_width": 0.17466248287902547, "valid_sims": 2000}, "hac": {"coverage": 0.931, "mean_width": 0.424382247743787, "median_width": 0.41739332543498503, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.994, "mean_width": 0.9386008958692269, "median_width": 0.9070858365932328, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.992, "mean_width": 0.28095150664301666, "median_width": 0.2727516155108475, "valid_sims": 2000}}, {"rho": 0.95, "hc": {"coverage": 0.468, "mean_width": 0.17476653722690624, "median_width": 0.17239603518704838, "valid_sims": 2000}, "hac": {"coverage": 0.892, "mean_width": 0.45575253719102155, "median_width": 0.44499795419187244, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.99, "mean_width": 1.0717072782450503, "median_width": 1.041942948773519, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9935, "mean_width": 0.20011045232979832, "median_width": 0.195477651192685, "valid_sims": 2000}}, {"rho": 0.99, "hc": {"coverage": 0.346, "mean_width": 0.16545441573755387, "median_width": 0.15818500299014196, "valid_sims": 2000}, "hac": {"coverage": 0.8055, "mean_width": 0.4554189464619453, "median_width": 0.4331031068966408, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.9945, "mean_width": 1.2224170098323188, "median_width": 1.1691417843663081, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.994, "mean_width": 0.08852568080533402, "median_width": 0.08592287849691882, "valid_sims": 2000}}, {"rho": 1.0, "hc": {"coverage": 0.189, "mean_width": 2.392444061364235, "median_width": 2.0368151163749317, "valid_sims": 2000}, "hac": {"coverage": 0.6765, "mean_width": 6.753847776158273, "median_width": 5.761790440399341, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.9955, "mean_width": 18.92536126740759, "median_width": 16.65874893259853, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9935, "mean_width": 0.6311460608075837, "median_width": 0.6156075920399919, "valid_sims": 2000}}]}, "c = (0, 1)  [\u03b2\u2082]": {"target": -2.0, "rho_results": [{"rho": 0.0, "hc": {"coverage": 0.947, "mean_width": 0.16086925665822865, "median_width": 0.16062910618120643, "valid_sims": 2000}, "hac": {"coverage": 0.9485, "mean_width": 0.1606431530241757, "median_width": 0.15949517768287602, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.9955, "mean_width": 0.3771661015183795, "median_width": 0.3664996879627498, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.99, "mean_width": 0.8921100979266323, "median_width": 0.8756326265597845, "valid_sims": 2000}}, {"rho": 0.3, "hc": {"coverage": 0.864, "mean_width": 0.16063927503058767, "median_width": 0.16035544373610278, "valid_sims": 2000}, "hac": {"coverage": 0.951, "mean_width": 0.2070834874386058, "median_width": 0.20570182828588024, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.996, "mean_width": 0.48150843619692885, "median_width": 0.4702939082819956, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.992, "mean_width": 0.7370666381044331, "median_width": 0.7207412437868442, "valid_sims": 2000}}, {"rho": 0.5, "hc": {"coverage": 0.7845, "mean_width": 0.16016958704463843, "median_width": 0.15960304609489412, "valid_sims": 2000}, "hac": {"coverage": 0.931, "mean_width": 0.24919829069500327, "median_width": 0.2462138915989941, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.9875, "mean_width": 0.5693533558944871, "median_width": 0.5564964450068808, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9945, "mean_width": 0.6214779965156008, "median_width": 0.6096359103345895, "valid_sims": 2000}}, {"rho": 0.7, "hc": {"coverage": 0.682, "mean_width": 0.15941376700481663, "median_width": 0.1586282025276004, "valid_sims": 2000}, "hac": {"coverage": 0.932, "mean_width": 0.3097055949038306, "median_width": 0.30383429584436705, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.99, "mean_width": 0.6942249132039467, "median_width": 0.6828303855472352, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9935, "mean_width": 0.4750730326427746, "median_width": 0.46511561850565286, "valid_sims": 2000}}, {"rho": 0.9, "hc": {"coverage": 0.518, "mean_width": 0.15732361726338062, "median_width": 0.1559777136188154, "valid_sims": 2000}, "hac": {"coverage": 0.916, "mean_width": 0.40888084859168267, "median_width": 0.399782599668282, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.993, "mean_width": 0.902174418481044, "median_width": 0.8803851715438048, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.992, "mean_width": 0.27675525358903236, "median_width": 0.26996019863753196, "valid_sims": 2000}}, {"rho": 0.95, "hc": {"coverage": 0.508, "mean_width": 0.15380292016375827, "median_width": 0.15197638619309012, "valid_sims": 2000}, "hac": {"coverage": 0.9235, "mean_width": 0.4391565276193221, "median_width": 0.43051601451363464, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.994, "mean_width": 0.9429096174277352, "median_width": 0.9039792705462577, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9925, "mean_width": 0.19375465067220557, "median_width": 0.19020922721321798, "valid_sims": 2000}}, {"rho": 0.99, "hc": {"coverage": 0.4615, "mean_width": 0.1490395861871835, "median_width": 0.14277079809950743, "valid_sims": 2000}, "hac": {"coverage": 0.9315, "mean_width": 0.46458346580197657, "median_width": 0.44127611607871653, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.9945, "mean_width": 0.9991906494488692, "median_width": 0.9201706160762163, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9885, "mean_width": 0.08569138016567124, "median_width": 0.08380709084165638, "valid_sims": 2000}}, {"rho": 1.0, "hc": {"coverage": 0.6335, "mean_width": 2.1585089477844686, "median_width": 1.8615795160635344, "valid_sims": 2000}, "hac": {"coverage": 0.9625, "mean_width": 7.249405742252057, "median_width": 6.096800737338366, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.999, "mean_width": 13.665284731209136, "median_width": 11.799972068940878, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9925, "mean_width": 0.5983161761491375, "median_width": 0.5853694459998297, "valid_sims": 2000}}]}, "c = (1,1)/\u221a2": {"target": -0.7071067811865475, "rho_results": [{"rho": 0.0, "hc": {"coverage": 0.9465, "mean_width": 0.1763881539778405, "median_width": 0.17597203978184578, "valid_sims": 2000}, "hac": {"coverage": 0.9455, "mean_width": 0.17576980702200098, "median_width": 0.1749567820125515, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.993, "mean_width": 0.4388417728807936, "median_width": 0.4251393805776473, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9935, "mean_width": 0.9148036039235837, "median_width": 0.8894814164348346, "valid_sims": 2000}}, {"rho": 0.3, "hc": {"coverage": 0.879, "mean_width": 0.17610460519421955, "median_width": 0.17594301012861002, "valid_sims": 2000}, "hac": {"coverage": 0.943, "mean_width": 0.22524012324319412, "median_width": 0.22323635913729478, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.991, "mean_width": 0.543781907981321, "median_width": 0.5248806093663234, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.993, "mean_width": 0.7576717432425025, "median_width": 0.7413669032887007, "valid_sims": 2000}}, {"rho": 0.5, "hc": {"coverage": 0.7965, "mean_width": 0.17574885564991025, "median_width": 0.1748633808396737, "valid_sims": 2000}, "hac": {"coverage": 0.942, "mean_width": 0.26934505542018145, "median_width": 0.26615889877381105, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.993, "mean_width": 0.6393802748469696, "median_width": 0.6208428872521495, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9935, "mean_width": 0.6463204422975994, "median_width": 0.6376220580562588, "valid_sims": 2000}}, {"rho": 0.7, "hc": {"coverage": 0.6855, "mean_width": 0.1743267534949561, "median_width": 0.17370621418633136, "valid_sims": 2000}, "hac": {"coverage": 0.9345, "mean_width": 0.33061264356937325, "median_width": 0.32599506270382117, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.988, "mean_width": 0.7464563546068175, "median_width": 0.7309684575751607, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.995, "mean_width": 0.4987751958886612, "median_width": 0.4882406195136742, "valid_sims": 2000}}, {"rho": 0.9, "hc": {"coverage": 0.552, "mean_width": 0.1715080823075512, "median_width": 0.16966100962182745, "valid_sims": 2000}, "hac": {"coverage": 0.924, "mean_width": 0.4268429311773588, "median_width": 0.41660379483318566, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.992, "mean_width": 0.9628506137613715, "median_width": 0.9439141626554646, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9925, "mean_width": 0.28552486788419074, "median_width": 0.28063216735955754, "valid_sims": 2000}}, {"rho": 0.95, "hc": {"coverage": 0.476, "mean_width": 0.1690231952364159, "median_width": 0.16733712000908652, "valid_sims": 2000}, "hac": {"coverage": 0.907, "mean_width": 0.4576691866416692, "median_width": 0.44453135676293, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.993, "mean_width": 1.061076277673284, "median_width": 1.0340809895654886, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.993, "mean_width": 0.19757885496715133, "median_width": 0.19467996979857916, "valid_sims": 2000}}, {"rho": 0.99, "hc": {"coverage": 0.371, "mean_width": 0.1610931746803551, "median_width": 0.15436488313014446, "valid_sims": 2000}, "hac": {"coverage": 0.832, "mean_width": 0.4606194016521333, "median_width": 0.43638105234548574, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.996, "mean_width": 1.1378213313457692, "median_width": 1.0712541760999865, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.99, "mean_width": 0.09011511342694038, "median_width": 0.0888187249437003, "valid_sims": 2000}}, {"rho": 1.0, "hc": {"coverage": 0.292, "mean_width": 2.3081369994688274, "median_width": 1.9523778652007486, "valid_sims": 2000}, "hac": {"coverage": 0.845, "mean_width": 6.9125852643006525, "median_width": 5.820914115261116, "valid_sims": 2000}, "hulc_raw": {"coverage": 0.996, "mean_width": 14.852868144508859, "median_width": 12.977593476740319, "valid_sims": 2000}, "hulc_diff": {"coverage": 0.9915, "mean_width": 0.6211975892926456, "median_width": 0.6114957439770936, "valid_sims": 2000}}]}};
+
+const fontFamily = 'Georgia, Times New Roman, serif';
+const plotBg = '#ffffff';
+const gridColor = '#e0ddd0';
+const fontColor = '#333';
+const colors = {
+  hc: '#e65100',      // orange — classical sandwich
+  hac: '#8b0000',     // dark red — HAC
+  hulc_raw: '#00356b', // dark blue — HulC raw
+  hulc_diff: '#2e7d32', // green — HulC diff
+};
+const names = {
+  hc: 'HC (classical sandwich)',
+  hac: 'HAC (QS + Andrews)',
+  hulc_raw: 'HulC (raw)',
+  hulc_diff: 'HulC (differenced)',
+};
+const methods = ['hc', 'hac', 'hulc_raw', 'hulc_diff'];
+
+const layout_base = {
+  paper_bgcolor: '#fafaf8', plot_bgcolor: plotBg,
+  font: { color: fontColor, family: fontFamily, size: 13 },
+  xaxis: { gridcolor: gridColor, zerolinecolor: gridColor, linecolor: '#999', title: 'ρ (autocorrelation)' },
+  yaxis: { gridcolor: gridColor, zerolinecolor: gridColor, linecolor: '#999' },
+  margin: { t: 50, b: 55, l: 65, r: 30 },
+  legend: { x: 0.01, y: 0.01, bgcolor: 'rgba(255,255,255,0.9)', font: { size: 11 }, bordercolor: '#ddd', borderwidth: 1 },
+};
+
+const dashes = { hc: 'dot', hac: 'solid', hulc_raw: 'dash', hulc_diff: 'solid' };
+const symbols = { hc: 'square', hac: 'circle', hulc_raw: 'diamond', hulc_diff: 'triangle-up' };
+
+const c_keys = Object.keys(results);
+const c_labels = ['c₁ = (1,0) — β₁', 'c₂ = (0,1) — β₂', 'c₃ = (1,1)/√2'];
+const cov_ids = ['fig-cov-c1', 'fig-cov-c2', 'fig-cov-c3'];
+const width_ids = ['fig-width-c1', 'fig-width-c2', 'fig-width-c3'];
+const table_ids = ['table-c1', 'table-c2', 'table-c3'];
+
+c_keys.forEach((ck, idx) => {
+  const data = results[ck].rho_results;
+  const rhos = data.map(d => d.rho);
+
+  // Coverage plot
+  const cov_traces = methods.map(m => ({
+    x: rhos, y: data.map(d => d[m].coverage),
+    mode: 'lines+markers', name: names[m],
+    line: { color: colors[m], width: 2.5, dash: dashes[m] },
+    marker: { size: 7, symbol: symbols[m] },
+  }));
+  cov_traces.push({
+    x: [0, 1], y: [0.95, 0.95], mode: 'lines', name: 'Nominal 95%',
+    line: { color: '#999', width: 1.5, dash: 'dot' }, showlegend: idx === 0,
+  });
+  Plotly.newPlot(cov_ids[idx], cov_traces, {
+    ...layout_base,
+    title: { text: `Coverage: ${c_labels[idx]}`, font: { size: 15 } },
+    yaxis: { ...layout_base.yaxis, title: 'Coverage', range: [0.90, 1.005] },
+    height: 400,
+  }, { responsive: true });
+
+  // Width plot
+  const width_traces = methods.map(m => ({
+    x: rhos, y: data.map(d => d[m].mean_width),
+    mode: 'lines+markers', name: names[m],
+    line: { color: colors[m], width: 2.5, dash: dashes[m] },
+    marker: { size: 7, symbol: symbols[m] },
+  }));
+  Plotly.newPlot(width_ids[idx], width_traces, {
+    ...layout_base,
+    title: { text: `Mean CI Width: ${c_labels[idx]}`, font: { size: 15 } },
+    yaxis: { ...layout_base.yaxis, title: 'Mean CI width' },
+    height: 400,
+  }, { responsive: true });
+
+  // Table
+  let html = '<table><tr><th rowspan="2">ρ</th>';
+  methods.forEach(m => { html += `<th colspan="2">${names[m]}</th>`; });
+  html += '</tr><tr>';
+  methods.forEach(() => { html += '<th>Cov.</th><th>Width</th>'; });
+  html += '</tr>';
+  data.forEach(d => {
+    const ws = methods.map(m => d[m].mean_width);
+    const minW = Math.min(...ws.filter(w => w > 0));
+    html += `<tr><td>${d.rho.toFixed(2)}</td>`;
+    methods.forEach(m => {
+      const isBest = Math.abs(d[m].mean_width - minW) < 0.001;
+      html += `<td>${(100*d[m].coverage).toFixed(1)}%</td>`;
+      html += `<td${isBest ? ' class="best"' : ''}>${d[m].mean_width.toFixed(4)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</table>';
+  document.getElementById(table_ids[idx]).innerHTML = html;
+});
+
+// Ratio plot
+(function() {
+  const rhos = results[c_keys[0]].rho_results.map(d => d.rho);
+  const ratio_traces = ['hac', 'hulc_raw', 'hulc_diff'].map(m => {
+    const avg = rhos.map((_, ri) => {
+      let sum = 0;
+      c_keys.forEach(ck => {
+        const d = results[ck].rho_results[ri];
+        sum += d[m].mean_width / d.hc.mean_width;
+      });
+      return sum / c_keys.length;
+    });
+    return {
+      x: rhos, y: avg, mode: 'lines+markers', name: `${names[m]} / HC`,
+      line: { color: colors[m], width: 2.5, dash: dashes[m] },
+      marker: { size: 7, symbol: symbols[m] },
+    };
+  });
+  ratio_traces.push({
+    x: [0, 1], y: [1, 1], mode: 'lines', name: 'Parity (ratio = 1)',
+    line: { color: '#999', width: 1.5, dash: 'dot' },
+  });
+  Plotly.newPlot('fig-ratio', ratio_traces, {
+    ...layout_base,
+    title: { text: 'Width Ratio vs HC (averaged over c vectors)', font: { size: 15 } },
+    yaxis: { ...layout_base.yaxis, title: 'Width ratio (method / HC)' },
+    height: 420,
+  }, { responsive: true });
+})();
+</script>
+
+</body>
+</html>

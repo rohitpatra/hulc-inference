@@ -1,0 +1,6 @@
+[project]
+name = "hulc-inference"
+version = "0.1.0"
+description = "HulC: Uniformly valid inference beyond CLT and independence"
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy"]

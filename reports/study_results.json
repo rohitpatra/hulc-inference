@@ -1,0 +1,665 @@
+{
+  "c = (1, 0)  [\u03b2\u2081]": {
+    "target": 1.0,
+    "rho_results": [
+      {
+        "rho": 0.0,
+        "hc": {
+          "coverage": 0.9405,
+          "mean_width": 0.18179365156993862,
+          "median_width": 0.18141032146556857,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.938,
+          "mean_width": 0.1816467655712569,
+          "median_width": 0.18059647815476065,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.988,
+          "mean_width": 0.4385119871489216,
+          "median_width": 0.4231655472387117,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9925,
+          "mean_width": 0.914980737922573,
+          "median_width": 0.8879924844996924,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.3,
+        "hc": {
+          "coverage": 0.8785,
+          "mean_width": 0.18157548458005646,
+          "median_width": 0.18159437689529861,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.9435,
+          "mean_width": 0.2316022163398145,
+          "median_width": 0.23013379537739026,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.9935,
+          "mean_width": 0.5446480855134701,
+          "median_width": 0.5268186537835371,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9925,
+          "mean_width": 0.765707838388269,
+          "median_width": 0.7449662018674523,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.5,
+        "hc": {
+          "coverage": 0.8005,
+          "mean_width": 0.18043906972882875,
+          "median_width": 0.1797988580358647,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.9375,
+          "mean_width": 0.27283084659114726,
+          "median_width": 0.2708858339854505,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.992,
+          "mean_width": 0.6408706227106512,
+          "median_width": 0.6260691621930824,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9945,
+          "mean_width": 0.6489869625151748,
+          "median_width": 0.63615296924364,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.7,
+        "hc": {
+          "coverage": 0.7055,
+          "mean_width": 0.18009333660871515,
+          "median_width": 0.17915434792532034,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.943,
+          "mean_width": 0.33585442860255843,
+          "median_width": 0.33049366383281353,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.992,
+          "mean_width": 0.7599658884246105,
+          "median_width": 0.7450855595870658,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9935,
+          "mean_width": 0.5014091224002512,
+          "median_width": 0.49170299463987255,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.9,
+        "hc": {
+          "coverage": 0.5455,
+          "mean_width": 0.17608056752468645,
+          "median_width": 0.17466248287902547,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.931,
+          "mean_width": 0.424382247743787,
+          "median_width": 0.41739332543498503,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.994,
+          "mean_width": 0.9386008958692269,
+          "median_width": 0.9070858365932328,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.992,
+          "mean_width": 0.28095150664301666,
+          "median_width": 0.2727516155108475,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.95,
+        "hc": {
+          "coverage": 0.468,
+          "mean_width": 0.17476653722690624,
+          "median_width": 0.17239603518704838,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.892,
+          "mean_width": 0.45575253719102155,
+          "median_width": 0.44499795419187244,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.99,
+          "mean_width": 1.0717072782450503,
+          "median_width": 1.041942948773519,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9935,
+          "mean_width": 0.20011045232979832,
+          "median_width": 0.195477651192685,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.99,
+        "hc": {
+          "coverage": 0.346,
+          "mean_width": 0.16545441573755387,
+          "median_width": 0.15818500299014196,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.8055,
+          "mean_width": 0.4554189464619453,
+          "median_width": 0.4331031068966408,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.9945,
+          "mean_width": 1.2224170098323188,
+          "median_width": 1.1691417843663081,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.994,
+          "mean_width": 0.08852568080533402,
+          "median_width": 0.08592287849691882,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 1.0,
+        "hc": {
+          "coverage": 0.189,
+          "mean_width": 2.392444061364235,
+          "median_width": 2.0368151163749317,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.6765,
+          "mean_width": 6.753847776158273,
+          "median_width": 5.761790440399341,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.9955,
+          "mean_width": 18.92536126740759,
+          "median_width": 16.65874893259853,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9935,
+          "mean_width": 0.6311460608075837,
+          "median_width": 0.6156075920399919,
+          "valid_sims": 2000
+        }
+      }
+    ]
+  },
+  "c = (0, 1)  [\u03b2\u2082]": {
+    "target": -2.0,
+    "rho_results": [
+      {
+        "rho": 0.0,
+        "hc": {
+          "coverage": 0.947,
+          "mean_width": 0.16086925665822865,
+          "median_width": 0.16062910618120643,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.9485,
+          "mean_width": 0.1606431530241757,
+          "median_width": 0.15949517768287602,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.9955,
+          "mean_width": 0.3771661015183795,
+          "median_width": 0.3664996879627498,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.99,
+          "mean_width": 0.8921100979266323,
+          "median_width": 0.8756326265597845,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.3,
+        "hc": {
+          "coverage": 0.864,
+          "mean_width": 0.16063927503058767,
+          "median_width": 0.16035544373610278,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.951,
+          "mean_width": 0.2070834874386058,
+          "median_width": 0.20570182828588024,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.996,
+          "mean_width": 0.48150843619692885,
+          "median_width": 0.4702939082819956,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.992,
+          "mean_width": 0.7370666381044331,
+          "median_width": 0.7207412437868442,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.5,
+        "hc": {
+          "coverage": 0.7845,
+          "mean_width": 0.16016958704463843,
+          "median_width": 0.15960304609489412,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.931,
+          "mean_width": 0.24919829069500327,
+          "median_width": 0.2462138915989941,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.9875,
+          "mean_width": 0.5693533558944871,
+          "median_width": 0.5564964450068808,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9945,
+          "mean_width": 0.6214779965156008,
+          "median_width": 0.6096359103345895,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.7,
+        "hc": {
+          "coverage": 0.682,
+          "mean_width": 0.15941376700481663,
+          "median_width": 0.1586282025276004,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.932,
+          "mean_width": 0.3097055949038306,
+          "median_width": 0.30383429584436705,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.99,
+          "mean_width": 0.6942249132039467,
+          "median_width": 0.6828303855472352,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9935,
+          "mean_width": 0.4750730326427746,
+          "median_width": 0.46511561850565286,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.9,
+        "hc": {
+          "coverage": 0.518,
+          "mean_width": 0.15732361726338062,
+          "median_width": 0.1559777136188154,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.916,
+          "mean_width": 0.40888084859168267,
+          "median_width": 0.399782599668282,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.993,
+          "mean_width": 0.902174418481044,
+          "median_width": 0.8803851715438048,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.992,
+          "mean_width": 0.27675525358903236,
+          "median_width": 0.26996019863753196,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.95,
+        "hc": {
+          "coverage": 0.508,
+          "mean_width": 0.15380292016375827,
+          "median_width": 0.15197638619309012,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.9235,
+          "mean_width": 0.4391565276193221,
+          "median_width": 0.43051601451363464,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.994,
+          "mean_width": 0.9429096174277352,
+          "median_width": 0.9039792705462577,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9925,
+          "mean_width": 0.19375465067220557,
+          "median_width": 0.19020922721321798,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.99,
+        "hc": {
+          "coverage": 0.4615,
+          "mean_width": 0.1490395861871835,
+          "median_width": 0.14277079809950743,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.9315,
+          "mean_width": 0.46458346580197657,
+          "median_width": 0.44127611607871653,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.9945,
+          "mean_width": 0.9991906494488692,
+          "median_width": 0.9201706160762163,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9885,
+          "mean_width": 0.08569138016567124,
+          "median_width": 0.08380709084165638,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 1.0,
+        "hc": {
+          "coverage": 0.6335,
+          "mean_width": 2.1585089477844686,
+          "median_width": 1.8615795160635344,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.9625,
+          "mean_width": 7.249405742252057,
+          "median_width": 6.096800737338366,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.999,
+          "mean_width": 13.665284731209136,
+          "median_width": 11.799972068940878,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9925,
+          "mean_width": 0.5983161761491375,
+          "median_width": 0.5853694459998297,
+          "valid_sims": 2000
+        }
+      }
+    ]
+  },
+  "c = (1,1)/\u221a2": {
+    "target": -0.7071067811865475,
+    "rho_results": [
+      {
+        "rho": 0.0,
+        "hc": {
+          "coverage": 0.9465,
+          "mean_width": 0.1763881539778405,
+          "median_width": 0.17597203978184578,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.9455,
+          "mean_width": 0.17576980702200098,
+          "median_width": 0.1749567820125515,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.993,
+          "mean_width": 0.4388417728807936,
+          "median_width": 0.4251393805776473,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9935,
+          "mean_width": 0.9148036039235837,
+          "median_width": 0.8894814164348346,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.3,
+        "hc": {
+          "coverage": 0.879,
+          "mean_width": 0.17610460519421955,
+          "median_width": 0.17594301012861002,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.943,
+          "mean_width": 0.22524012324319412,
+          "median_width": 0.22323635913729478,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.991,
+          "mean_width": 0.543781907981321,
+          "median_width": 0.5248806093663234,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.993,
+          "mean_width": 0.7576717432425025,
+          "median_width": 0.7413669032887007,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.5,
+        "hc": {
+          "coverage": 0.7965,
+          "mean_width": 0.17574885564991025,
+          "median_width": 0.1748633808396737,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.942,
+          "mean_width": 0.26934505542018145,
+          "median_width": 0.26615889877381105,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.993,
+          "mean_width": 0.6393802748469696,
+          "median_width": 0.6208428872521495,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9935,
+          "mean_width": 0.6463204422975994,
+          "median_width": 0.6376220580562588,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.7,
+        "hc": {
+          "coverage": 0.6855,
+          "mean_width": 0.1743267534949561,
+          "median_width": 0.17370621418633136,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.9345,
+          "mean_width": 0.33061264356937325,
+          "median_width": 0.32599506270382117,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.988,
+          "mean_width": 0.7464563546068175,
+          "median_width": 0.7309684575751607,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.995,
+          "mean_width": 0.4987751958886612,
+          "median_width": 0.4882406195136742,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.9,
+        "hc": {
+          "coverage": 0.552,
+          "mean_width": 0.1715080823075512,
+          "median_width": 0.16966100962182745,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.924,
+          "mean_width": 0.4268429311773588,
+          "median_width": 0.41660379483318566,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.992,
+          "mean_width": 0.9628506137613715,
+          "median_width": 0.9439141626554646,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9925,
+          "mean_width": 0.28552486788419074,
+          "median_width": 0.28063216735955754,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.95,
+        "hc": {
+          "coverage": 0.476,
+          "mean_width": 0.1690231952364159,
+          "median_width": 0.16733712000908652,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.907,
+          "mean_width": 0.4576691866416692,
+          "median_width": 0.44453135676293,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.993,
+          "mean_width": 1.061076277673284,
+          "median_width": 1.0340809895654886,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.993,
+          "mean_width": 0.19757885496715133,
+          "median_width": 0.19467996979857916,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 0.99,
+        "hc": {
+          "coverage": 0.371,
+          "mean_width": 0.1610931746803551,
+          "median_width": 0.15436488313014446,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.832,
+          "mean_width": 0.4606194016521333,
+          "median_width": 0.43638105234548574,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.996,
+          "mean_width": 1.1378213313457692,
+          "median_width": 1.0712541760999865,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.99,
+          "mean_width": 0.09011511342694038,
+          "median_width": 0.0888187249437003,
+          "valid_sims": 2000
+        }
+      },
+      {
+        "rho": 1.0,
+        "hc": {
+          "coverage": 0.292,
+          "mean_width": 2.3081369994688274,
+          "median_width": 1.9523778652007486,
+          "valid_sims": 2000
+        },
+        "hac": {
+          "coverage": 0.845,
+          "mean_width": 6.9125852643006525,
+          "median_width": 5.820914115261116,
+          "valid_sims": 2000
+        },
+        "hulc_raw": {
+          "coverage": 0.996,
+          "mean_width": 14.852868144508859,
+          "median_width": 12.977593476740319,
+          "valid_sims": 2000
+        },
+        "hulc_diff": {
+          "coverage": 0.9915,
+          "mean_width": 0.6211975892926456,
+          "median_width": 0.6114957439770936,
+          "valid_sims": 2000
+        }
+      }
+    ]
+  }
+}
